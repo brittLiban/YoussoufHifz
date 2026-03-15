@@ -1,0 +1,17 @@
+# Local development overrides — auto-loaded by docker-compose up
+#
+# Differences from production:
+#  - nginx uses HTTP-only config (no SSL certs needed locally)
+#  - nginx only listens on port 80 (no 443)
+#
+# On the VPS (production), run with:
+#   docker compose -f docker-compose.yml up -d
+# which skips this override and uses the full SSL nginx.conf
+
+services:
+  nginx:
+    volumes:
+      - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+      # port 443 removed — no SSL in dev
