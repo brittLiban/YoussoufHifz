@@ -137,10 +137,17 @@ export default function RevisionScreen() {
     <View style={[styles.root, { backgroundColor: theme.bgPrimary }]}>
       <SafeAreaView edges={['top']}>
         <View style={styles.header}>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text variant="h2">Murajaah</Text>
             <Text variant="caption" secondary style={{ marginTop: 2 }}>Revision Tracker</Text>
           </View>
+          <TouchableOpacity
+            onPress={() => router.push('/quiz' as any)}
+            style={[styles.quizBtn, { backgroundColor: theme.gold + '22', borderColor: theme.gold + '66' }]}
+            activeOpacity={0.8}
+          >
+            <Text variant="caption" semiBold style={{ color: theme.gold }}>Quiz ›</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
 
@@ -359,9 +366,17 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: Spacing.lg },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.md,
     paddingBottom: Spacing.lg,
+  },
+  quizBtn: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: Radius.md,
+    borderWidth: 1,
   },
   listHeader: { paddingHorizontal: Spacing.lg, gap: Spacing.md, paddingTop: Spacing.sm, paddingBottom: Spacing.md },
   list: { paddingBottom: Spacing['3xl'] },
