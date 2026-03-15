@@ -1,0 +1,69 @@
+# ─── Dependencies ────────────────────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ─── Environment / secrets ───────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+# .env.example is intentionally committed (safe placeholder values)
+
+# ─── Expo / React Native ─────────────────────────────────────────────────────
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# ─── EAS / Expo build artifacts ──────────────────────────────────────────────
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+android/
+ios/
+
+# ─── TypeScript build output ─────────────────────────────────────────────────
+build/
+*.tsbuildinfo
+
+# ─── Drizzle migrations generated output ─────────────────────────────────────
+# Keep: apps/api/src/db/migrations/ (source-controlled migrations)
+# Ignore: drizzle kit meta cache
+apps/api/.drizzle/
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── OS / editor ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+.idea/
+
+# ─── Docker volumes / data (never commit DB data) ────────────────────────────
+postgres-data/
+minio-data/
+redis-data/
+
+# ─── SSL certificates (nginx/ssl) ─────────────────────────────────────────────
+nginx/ssl/*.crt
+nginx/ssl/*.key
+nginx/ssl/*.pem
+nginx/ssl/*.csr
+# Keep nginx/ssl/README.md if it exists
+
+# ─── Test / coverage ─────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ─── Misc ────────────────────────────────────────────────────────────────────
+*.tgz
+.cache/
+tmp/
+temp/
