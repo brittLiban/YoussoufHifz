@@ -9,14 +9,16 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useTheme } from '../../src/lib/theme';
-import { Text } from '../../src/components/ui/Text';
-import { Card } from '../../src/components/ui/Card';
-import { Avatar } from '../../src/components/ui/Avatar';
-import { Spacing, Radius } from '../../src/constants/spacing';
-import { FontFamily } from '../../src/constants/typography';
-import { useGroupDetail } from '../../src/hooks/useGroups';
-import type { GroupMember, GroupRole } from '../../src/types/api';
+import { useTheme } from '../../../src/lib/theme';
+import { Text } from '../../../src/components/ui/Text';
+import { Card } from '../../../src/components/ui/Card';
+import { Button } from '../../../src/components/ui/Button';
+import { Avatar } from '../../../src/components/ui/Avatar';
+import { Spacing, Radius } from '../../../src/constants/spacing';
+import { FontFamily } from '../../../src/constants/typography';
+import { useGroupDetail } from '../../../src/hooks/useGroups';
+import { useMyTeacherNotes } from '../../../src/hooks/useTeacher';
+import type { GroupMember, GroupRole, TeacherNote, TeacherTarget } from '../../../src/types/api';
 
 const ROLE_LABEL: Record<GroupRole, string> = {
   leader: 'Leader',
@@ -37,11 +39,15 @@ export default function GroupDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data, isLoading, isError } = useGroupDetail(id ?? '');
+  const { data: myNotesData } = useMyTeacherNotes(id ?? '');
 
   const group = data?.group;
   const members = data?.members ?? [];
+  const isTeacherOrLeader = group?.myRole === 'teacher' || group?.myRole === 'leader';
 
   const loggedTodayCount = members.filter((m) => m.loggedToday).length;
+  const myNotes = myNotesData?.notes ?? [];
+  const myTargets = myNotesData?.targets ?? [];
 
   if (isLoading) {
     return (
@@ -137,6 +143,53 @@ export default function GroupDetailScreen() {
               : `${members.length - loggedTodayCount} ${members.length - loggedTodayCount === 1 ? 'member' : 'members'} yet to log today.`}
           </Text>
         </Card>
+
+        {/* Teacher dashboard button — only for teacher/leader */}
+        {isTeacherOrLeader && (
+          <Button
+            label="Teacher Dashboard"
+            variant="secondary"
+            onPress={() => router.push(`/group/${id}/teacher` as any)}
+            style={{ marginBottom: Spacing.xs }}
+          />
+        )}
+
+        {/* My targets from teacher — student view */}
+        {!isTeacherOrLeader && myTargets.length > 0 && (
+          <Card elevated={false}>
+            <Text variant="caption" secondary style={{ letterSpacing: 0.8 }}>ASSIGNED TO YOU</Text>
+            {myTargets.map((t) => (
+              <View key={t.id} style={[styles.targetRow, { borderColor: theme.border }]}>
+                <View style={[styles.targetTypeDot, {
+                  backgroundColor: t.targetType === 'memorization' ? theme.accentGreen : theme.gold,
+                }]} />
+                <View style={{ flex: 1 }}>
+                  <Text variant="body">{t.description}</Text>
+                  {t.dueDate && (
+                    <Text variant="caption" secondary style={{ marginTop: 2 }}>
+                      Due {new Date(t.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                    </Text>
+                  )}
+                </View>
+              </View>
+            ))}
+          </Card>
+        )}
+
+        {/* My notes from teacher — student view */}
+        {!isTeacherOrLeader && myNotes.length > 0 && (
+          <Card elevated={false}>
+            <Text variant="caption" secondary style={{ letterSpacing: 0.8 }}>NOTES FROM YOUR TEACHER</Text>
+            {myNotes.slice(0, 3).map((n) => (
+              <View key={n.id} style={[styles.noteRow, { borderColor: theme.border }]}>
+                <Text variant="body" style={{ lineHeight: 22 }}>{n.content}</Text>
+                <Text variant="caption" secondary style={{ marginTop: 4 }}>
+                  {new Date(n.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </Text>
+              </View>
+            ))}
+          </Card>
+        )}
 
         {/* Member list */}
         <Text variant="caption" secondary style={{ letterSpacing: 0.8, paddingHorizontal: Spacing.xs }}>
@@ -278,6 +331,25 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: Radius.full,
     minWidth: 4,
+  },
+  targetRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    paddingTop: Spacing.md,
+    marginTop: Spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  targetTypeDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginTop: 6,
+  },
+  noteRow: {
+    paddingTop: Spacing.md,
+    marginTop: Spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
   loggedDot: {
     position: 'absolute',

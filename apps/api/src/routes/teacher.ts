@@ -297,6 +297,40 @@ export const teacherRoutes: FastifyPluginAsync = async (app) => {
     return reply.code(201).send({ target });
   });
 
+  // GET /groups/:id/my-notes — student fetches their own notes from teachers in this group
+  app.get('/:id/my-notes', async (req, reply) => {
+    const studentId = req.user!.sub;
+    const { id: groupId } = req.params as { id: string };
+
+    // Verify they're a member of the group
+    const [membership] = await db
+      .select({ id: groupMemberships.id })
+      .from(groupMemberships)
+      .where(and(eq(groupMemberships.groupId, groupId), eq(groupMemberships.userId, studentId)));
+
+    if (!membership) return reply.code(403).send({ error: 'Not a member of this group' });
+
+    const notes = await db
+      .select()
+      .from(teacherNotes)
+      .where(and(eq(teacherNotes.studentId, studentId), eq(teacherNotes.groupId, groupId)))
+      .orderBy(desc(teacherNotes.createdAt));
+
+    const targets = await db
+      .select()
+      .from(teacherTargets)
+      .where(
+        and(
+          eq(teacherTargets.studentId, studentId),
+          eq(teacherTargets.groupId, groupId),
+          eq(teacherTargets.isComplete, false)
+        )
+      )
+      .orderBy(desc(teacherTargets.createdAt));
+
+    return reply.send({ notes, targets });
+  });
+
   // PUT /groups/:id/teacher/targets/:tid/complete
   app.put('/:id/teacher/targets/:tid/complete', async (req, reply) => {
     const teacherId = req.user!.sub;

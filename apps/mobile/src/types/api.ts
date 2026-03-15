@@ -105,3 +105,47 @@ export interface GroupMember {
   percentComplete: number;
   loggedToday: boolean;
 }
+
+export interface TeacherNote {
+  id: string;
+  teacherId: string;
+  studentId: string;
+  groupId: string;
+  content: string;
+  isShareableWithParent: boolean;
+  createdAt: string;
+}
+
+export interface TeacherTarget {
+  id: string;
+  teacherId: string;
+  studentId: string;
+  groupId: string;
+  targetType: 'memorization' | 'revision';
+  description: string;
+  dueDate: string | null;
+  isComplete: boolean;
+  createdAt: string;
+}
+
+export interface StudentStats {
+  currentStreak: number;
+  totalLogged: number;
+  percentComplete: number;
+  weeklyTotal: number;
+  weeklyAvg: number;
+  todayLogged: number | null;
+  last7Days: { date: string; units: number }[];
+}
+
+export interface StudentDetail {
+  id: string;
+  displayName: string;
+  avatarUrl: string | null;
+  email: string;
+  goal: { id: string; unit: MemUnit; totalUnits: number; dailyTarget: number } | null;
+  stats: StudentStats | null;
+  revisionPortions: RevisionPortion[];
+  notes: TeacherNote[];
+  targets: TeacherTarget[];
+}
