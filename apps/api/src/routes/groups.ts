@@ -54,7 +54,7 @@ async function getMemberStats(userId: string) {
       )
     );
 
-  if (!goal) return { goal: null, streak: 0, percentComplete: 0, loggedToday: false };
+  if (!goal) return { goal: null, streak: 0, percentComplete: 0, loggedToday: false, currentSurahId: null };
 
   const allLogs = await db
     .select({ logDate: progressLogs.logDate, unitsLogged: progressLogs.unitsLogged })
@@ -68,6 +68,10 @@ async function getMemberStats(userId: string) {
   const loggedToday = allLogs.some((l) => l.logDate === todayStr());
   const streak = calcStreak(allLogs.map((l) => l.logDate));
 
+  // currentSurahId — stored in startReference by the onboarding flow
+  const ref = goal.startReference as Record<string, unknown>;
+  const currentSurahId = typeof ref?.surahId === 'number' ? ref.surahId : null;
+
   return {
     goal: {
       unit: goal.unit,
@@ -77,6 +81,7 @@ async function getMemberStats(userId: string) {
     streak,
     percentComplete,
     loggedToday,
+    currentSurahId,
   };
 }
 

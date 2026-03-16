@@ -104,6 +104,7 @@ export interface GroupMember {
   streak: number;
   percentComplete: number;
   loggedToday: boolean;
+  currentSurahId: number | null;
 }
 
 export interface TeacherNote {

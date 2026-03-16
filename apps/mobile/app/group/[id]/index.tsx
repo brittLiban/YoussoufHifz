@@ -18,6 +18,7 @@ import { Spacing, Radius } from '../../../src/constants/spacing';
 import { FontFamily } from '../../../src/constants/typography';
 import { useGroupDetail } from '../../../src/hooks/useGroups';
 import { useMyTeacherNotes } from '../../../src/hooks/useTeacher';
+import { QuranService } from '../../../src/lib/quran-service';
 import type { GroupMember, GroupRole, TeacherNote, TeacherTarget } from '../../../src/types/api';
 
 const ROLE_LABEL: Record<GroupRole, string> = {
@@ -209,7 +210,7 @@ export default function GroupDetailScreen() {
 function MemberCard({ member }: { member: GroupMember }) {
   const theme = useTheme();
   const isElevated = member.role === 'leader' || member.role === 'teacher';
-  const unitLabel = member.goal ? UNIT_LABEL[member.goal.unit] ?? 'units' : '';
+  const currentSurah = member.currentSurahId ? QuranService.getSurah(member.currentSurahId) : null;
 
   return (
     <Card elevated={false}>
@@ -243,7 +244,30 @@ function MemberCard({ member }: { member: GroupMember }) {
             )}
           </View>
 
-          {/* Stats row */}
+          {/* Current surah */}
+          {currentSurah ? (
+            <View style={styles.surahRow}>
+              <Text variant="caption" secondary>On </Text>
+              <Text variant="caption" semiBold style={{ color: theme.gold }}>
+                {currentSurah.nameTranslit}
+              </Text>
+              <Text
+                style={{
+                  fontFamily: 'Amiri_400Regular',
+                  fontSize: 13,
+                  color: theme.gold,
+                  marginLeft: 4,
+                }}
+              >
+                {currentSurah.nameArabic}
+              </Text>
+              <Text variant="caption" secondary style={{ marginLeft: 4 }}>
+                · Surah {currentSurah.id}
+              </Text>
+            </View>
+          ) : null}
+
+          {/* Streak + percent */}
           <View style={styles.memberStats}>
             <Text variant="caption" secondary>
               🔥 {member.streak} day{member.streak !== 1 ? 's' : ''}
@@ -252,7 +276,7 @@ function MemberCard({ member }: { member: GroupMember }) {
               <>
                 <Text variant="caption" secondary>  ·  </Text>
                 <Text variant="caption" secondary>
-                  {member.percentComplete}% of {member.goal.totalUnits} {unitLabel}
+                  {member.percentComplete}% complete
                 </Text>
               </>
             )}
@@ -316,6 +340,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
+  },
+  surahRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 3,
+    flexWrap: 'wrap',
   },
   memberStats: {
     flexDirection: 'row',
